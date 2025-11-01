@@ -11,9 +11,9 @@ class MyHomePage extends StatelessWidget {
 
   // Untuk buttons
   final List<ItemHomepage> items = [
-    ItemHomepage("All Products", Icons.storefront, Colors.blue),
-    ItemHomepage("My Products", Icons.all_inbox, Colors.green),
-    ItemHomepage("Create Product", Icons.add, Colors.red),
+    ItemHomepage("All Products", Icons.storefront, slate),
+    ItemHomepage("My Products", Icons.all_inbox, moss),
+    ItemHomepage("Create Product", Icons.add, dustyRed),
   ];
 
   @override

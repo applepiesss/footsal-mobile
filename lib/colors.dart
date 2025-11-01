@@ -8,3 +8,5 @@ const Color moss = Color(0xFF5f7b1f);
 const Color beige = Color(0xFFcbb4ab);
 const Color oat = Color(0xFFf0e6da);
 const Color pearl = Color(0xFFfaf6ef);
+const Color sapphire = Color(0xFF074D75);
+const Color slate = Color(0xFF367EA6);
