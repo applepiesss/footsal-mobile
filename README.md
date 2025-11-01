@@ -5,7 +5,7 @@
 - **Kelas: PBP - C**
 
 ## Tugas Individu 7
-1.**Jelaskan apa itu widget tree pada Flutter dan bagaimana hubungan parent-child (induk-anak) bekerja antar widget.**
+1. **Jelaskan apa itu widget tree pada Flutter dan bagaimana hubungan parent-child (induk-anak) bekerja antar widget.**
     - **Widget Tree**
         - Logical representation dari semua user UI widget yang akan di jalankan ketika pengukuran layout dan digunakan ketika melakukan rendering dan hit testing.
     - **Parent**
