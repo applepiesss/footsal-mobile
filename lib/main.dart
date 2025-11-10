@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:footsal_mobile/menu.dart';
+import 'package:footsal_mobile/screens/menu.dart';
 import 'package:footsal_mobile/colors.dart';
 
 void main() {
