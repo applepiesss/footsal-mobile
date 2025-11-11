@@ -13,8 +13,8 @@ class LeftDrawer extends StatelessWidget {
       child: ListView(
         children: [
           // Bagian Drawer Header
-          const DrawerHeader(
-            decoration: BoxDecoration(color: cherry),
+          DrawerHeader(
+            decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary),
             child: Column(
               children: [
                 Text(
@@ -60,7 +60,7 @@ class LeftDrawer extends StatelessWidget {
               Buatlah routing ke ProductFormPage di sini,
               setelah halaman ProductFormPage sudah dibuat.
               */
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ProductFormPage()),
               );
