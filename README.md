@@ -198,21 +198,55 @@
     - **Memastikan deployment proyek tugas Django kamu telah berjalan dengan baik.**
         - Menjalankan local server Django dengan `python3 manage.py runserver`
     - **Mengimplementasikan fitur registrasi akun pada proyek tugas Flutter.**
-        - Membuat dan mengisi file `register.dart` di direktori `screens`
+        - Membuat dan mengisi file `register.dart` di direktori `lib/screens`
     - **Membuat halaman login pada proyek tugas Flutter.**
-        - Membuat dan mengisi file `login.dart` di direktori `screens`
+        - Membuat dan mengisi file `login.dart` di direktori `lib/screens`
     - **Mengintegrasikan sistem autentikasi Django dengan proyek tugas Flutter.**
         - Menambahkan endpoint login, register, dan logout pada `views.py` app `authentication` di Django
         - Mengaktifkan session dan middleware di `settings.py` di Django
+        - Menggunakan package `pbp_django_auth` dan membagi `CookieRequest` dengan `Provider`
     - **Membuat model kustom sesuai dengan proyek aplikasi Django.**
-        
+        - Membuat file `product_entry.dart` pada direktori `lib/models`
+        - Mengisi file tersebut dengan data JSON yang sudah diubah dengan tools `app.quicktype.io`
     - **Membuat halaman yang berisi daftar semua item yang terdapat pada endpoint JSON di Django yang telah kamu deploy.**
+        - Mengambil data dari endpoint `/json/` di Django yang akan mengembalikan JSON list produk 
     - **Tampilkan name, price, description, thumbnail, category, dan is_featured dari masing-masing item pada halaman ini (Dapat disesuaikan dengan field yang kalian buat sebelumnya).**
+        - Membuat dan mengisi file `product_entry_card.dart` pada direktori `lib/widgets`
     - **Membuat halaman detail untuk setiap item yang terdapat pada halaman daftar Item.**
+        - Membuat dan mengisi file `product_detail.dart` pada direktori `lib/screens`
     - **Halaman ini dapat diakses dengan menekan salah satu card item pada halaman daftar Item.**
+        - Menambahkan kode berikut pada file `product_entry_list.dart` pada direktori `lib/screens`
+        ```
+        itemBuilder: (_, index) => ProductEntryCard(
+            product: snapshot.data![index],
+            onTap: () {
+                Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        ProductDetailPage(product: snapshot.data![index]),
+                ),
+                );
+            },
+        ),
+        ```
     - **Tampilkan seluruh atribut pada model item kamu pada halaman ini.**
+        - Membuat dan mengisi file `product_entry_list.dart` pada direktori `lib/screens`
     - **Tambahkan tombol untuk kembali ke halaman daftar item.**
+        - Menambahkan kode berikut pada file `product_detail.dart` pada direktori `lib/screens`
+        ```
+        TextButton.icon(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            label: const Text(
+            'Back to Product',
+            style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500),
+            ),
+        ),
+        ```
     - **Melakukan filter pada halaman daftar item dengan hanya menampilkan item yang terasosiasi dengan pengguna yang login.**
+        - Membuat endpoint baru pada Django `/my-products-json/` yang mengembalikan produk yang dibuat oleh user yang sedang login
+        - Pada file `product_entry_list.dart` pada direktori `lib/screens` akan memilih endpoint sesuai dengan filter dan menampilkan daftar produknya
 
 # Footsal Mobile
 
