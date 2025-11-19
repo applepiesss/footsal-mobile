@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:footsal_mobile/colors.dart';
 import 'package:footsal_mobile/screens/menu.dart';
 import 'package:footsal_mobile/screens/productlist_form.dart';
+import 'package:footsal_mobile/screens/product_entry_list.dart';
 
 class ItemCard extends StatelessWidget {
   // Menampilkan kartu dengan ikon dan nama.
@@ -20,20 +21,30 @@ class ItemCard extends StatelessWidget {
 
       child: InkWell(
         // Aksi ketika kartu ditekan.
-        onTap: () {
-          // Menampilkan pesan SnackBar saat kartu ditekan.
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(content: Text("Kamu telah menekan tombol ${item.name}")),
-            );
+        onTap: () async {
           // Navigate ke route yang sesuai (tergantung jenis tombol)
-          if (item.name == "Add Product") {
+          if (item.name == "Create Product") {
             // Gunakan Navigator.push untuk melakukan navigasi ke MaterialPageRoute yang mencakup ProductFormPage.
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ProductFormPage()),
             );
+          }
+          else if (item.name == "All Products") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ProductEntryListPage(isMyProducts: false)
+                  ),
+              );
+          }
+          else if (item.name == "My Products") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ProductEntryListPage(isMyProducts: true)
+                  ),
+              );
           }
         },
         // Container untuk menyimpan Icon dan Text

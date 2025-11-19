@@ -15,7 +15,7 @@ class MyHomePage extends StatelessWidget {
   final List<ItemHomepage> items = [
     ItemHomepage("All Products", Icons.storefront, slate),
     ItemHomepage("My Products", Icons.all_inbox, moss),
-    ItemHomepage("Create Product", Icons.add, dustyRed),
+    ItemHomepage("Create Product", Icons.post_add, dustyRed),
   ];
 
   @override

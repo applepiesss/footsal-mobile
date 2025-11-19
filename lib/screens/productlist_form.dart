@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:footsal_mobile/colors.dart';
 import 'package:footsal_mobile/widgets/left_drawer.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:footsal_mobile/screens/menu.dart';
 
 class ProductFormPage extends StatefulWidget {
   const ProductFormPage({super.key});
@@ -25,6 +29,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       backgroundColor: pearl,
       appBar: AppBar(
@@ -225,12 +230,18 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     });
                   },
                   validator: (String? value) {
-                    final int? discountNumber = int.tryParse(value!);
-                    if (discountNumber == null) {
+                    if (value == null || value.isEmpty) {
+                      return "Discount tidak boleh kosong!";
+                    }
+                    final priceNumber = int.tryParse(value);
+                    if (priceNumber == null) {
                       return "Discount harus berupa angka!";
                     }
-                    if (discountNumber < 0) {
+                    if (priceNumber < 0) {
                       return "Discount harus lebih dari atau sama dengan 0!";
+                    }
+                    if (priceNumber > 100) {
+                      return "Discount tidak boleh lebih dari 100!";
                     }
                     return null;
                   },
@@ -258,11 +269,11 @@ class _ProductFormPageState extends State<ProductFormPage> {
                       return "Stock tidak boleh kosong!";
                     }
 
-                    final priceNumber = int.tryParse(value);
-                    if (priceNumber == null) {
+                    final stockNumber = int.tryParse(value);
+                    if (stockNumber == null) {
                       return "Stock harus berupa angka!";
                     }
-                    if (priceNumber < 0) {
+                    if (stockNumber < 0) {
                       return "Stock harus lebih dari atau sama dengan 0!";
                     }
                     return null;
@@ -279,44 +290,49 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(olive),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              backgroundColor: pearl,
-                              title: const Text('Produk berhasil disimpan!'),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Nama: $_name'),
-                                    Text('Harga: $_price'),
-                                    Text('Deskripsi: $_description'),
-                                    Text('Thumbnail: $_thumbnail'),
-                                    Text('Kategori: $_category'),
-                                    Text(
-                                      'Hot: ${_isFeatured ? "Ya" : "Tidak"}',
-                                    ),
-                                    Text('Brand: $_brand'),
-                                    Text('Discount: $_discount'),
-                                    Text('Stok: $_stock'),
-                                  ],
+                        // Replace the URL with your app's URL
+                        // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
+                        // If you using chrome,  use URL http://localhost:8000
+
+                        final response = await request.postJson(
+                          "http://localhost:8000/create-flutter/",
+                          jsonEncode({
+                            "name": _name,
+                            "description": _description,
+                            "thumbnail": _thumbnail,
+                            "category": _category,
+                            "is_featured": _isFeatured,
+                            "price": _price,
+                            "brand": _brand,
+                            "discount": _discount,
+                            "stock": _stock,
+                          }),
+                        );
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Product successfully saved!"),
+                              ),
+                            );
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyHomePage(),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Something went wrong, please try again.",
                                 ),
                               ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
                             );
-                          },
-                        );
+                          }
+                        }
                       }
                     },
                     child: const Text("Simpan", style: TextStyle(color: oat)),
