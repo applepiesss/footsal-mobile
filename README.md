@@ -99,18 +99,120 @@
 
 ## Tugas Individu 9
 1. **Jelaskan mengapa kita perlu membuat model Dart saat mengambil/mengirim data JSON? Apa konsekuensinya jika langsung memetakan Map<String, dynamic> tanpa model (terkait validasi tipe, null-safety, maintainability)?**
+    - **Validasi tipe**
+        - Dengan `Map<String, dynamic>` dart dan flutter hanya tau bahwa setiap nilai adalah dynamic sehingga harus melakukan casting manual tiap kali mau akses data.
+        - Model Dart mengubah data menjadi objek yang sudah ditentukan typenya secara eksplisit 
+    - **Null-safety**
+        - Dengan `Map<String, dynamic>` nilai null akan lebih sulit untuk dikelola, harus menambahkan validasi pengecekan null di setiap akses ke map.
+        - Model Dart memaksa untuk secara jelas mendeklarasikan field mana yang mungkin memiliki nilai null 
+    - **maintainability**
+        - Dengan `Map<String, dynamic>` Kode menjadi lebih berantakan karena harus casting manual.
+        - Dengan `Map<String, dynamic>` Jika satu struktur JSON berubah maka harus mencari dan update di seluruh codebase (lebih rumit).
+        - Model Dart mengganti akses string key menjadi akses property object yang lebih mudah untuk di baca dan di refactor.
 
 2. **Apa fungsi package http dan CookieRequest dalam tugas ini? Jelaskan perbedaan peran http vs CookieRequest.**
+    - **Http**
+        - Untuk melakukan HTTP request ke web service
+        - Melakukan general HTTP request tanpa peduli status session
+        - Harus mengimplementasikan cookie secara manual 
+    - **CookieRequest**
+        - Mengelola dan mengirimkan cookies 
+        - Melakukan request HTTP sekaligus mengelola cookies untuk menjaga auth session
+        - Menyimpan session cookie secara otomatis dari response dan menyertakan ke semua request berikutnya
+
 
 3. **Jelaskan mengapa instance CookieRequest perlu untuk dibagikan ke semua komponen di aplikasi Flutter.**
+    - **Alasan Utama**
+        - Karena fungsi utama nya adalah untuk mempertahankan dan mengelola session auth user di seluruh app. CookieRequest adalah sebagai "lock" dari session, sehingga instance yang sama harus digunakan oleh seluruh app untuk membuka session.
+    - **Alasan Lainnya**
+        - **Konsistensi session**
+            - Menggunakan satu instance membuat setiap komponen dijamin mengakses session dan cookie yang sama
+        - **Efisiensi**
+            - Logika penanganan cookie akan terpusat disatu tempat sehingga mengurangi duplikasi kode dan mempermudah ketika debuggung
 
 4. **Jelaskan konfigurasi konektivitas yang diperlukan agar Flutter dapat berkomunikasi dengan Django. Mengapa kita perlu menambahkan 10.0.2.2 pada ALLOWED_HOSTS, mengaktifkan CORS dan pengaturan SameSite/cookie, dan menambahkan izin akses internet di Android? Apa yang akan terjadi jika konfigurasi tersebut tidak dilakukan dengan benar?**
+    - **Konfigurasi konektivitas yang diperlukan agar Flutter dapat berkomunikasi dengan Django.**
+        - Menambahkan `ALLOWED_HOSTS = [..., ..., "10.0.2.2"]` di `settings.py`
+        - Menambahkan kode berikut di `settings.py`
+            ```
+            CORS_ALLOW_ALL_ORIGINS = True
+            CORS_ALLOW_CREDENTIALS = True
+            CSRF_COOKIE_SECURE = True
+            SESSION_COOKIE_SECURE = True
+            CSRF_COOKIE_SAMESITE = 'None'
+            SESSION_COOKIE_SAMESITE = 'None'
+            ```
+        - Menambahkan kode berikut di `android/app/src/main/AndroidManifest.xml`
+            ```
+            <!-- Required to fetch data from the Internet. -->
+            <uses-permission android:name="android.permission.INTERNET" />
+            ```
+    - **Mengapa kita perlu menambahkan 10.0.2.2 pada ALLOWED_HOSTS, mengaktifkan CORS dan pengaturan SameSite/cookie, dan menambahkan izin akses internet di Android**
+        - **Menambahkan 10.0.2.2**
+            - Untuk mengizinkan Android Emulator untuk mengakses server Django. 
+            - **Jika konfigurasi tidak dilakukan dengan benar**
+                - Django akan menolak dengan response 400 Bad Request
+        - **Mengaktifkan CORS dan pengaturan SameSite/cookie**
+            - Cors untuk mengizinkan request dari flutter ke Django (defaultnya kebijakan keamanan di browser dan mobile membatasi request yang dilakukan antar origin berbeda sehingga harus explicitly mengizinkan request)
+            - Cookie untuk mengirim cookie yang dapat digunakan oleh app mobile
+            - **Jika konfigurasi tidak dilakukan dengan benar**
+                - Request akan diblokir dan ditolak, karena cookie tidak disimpan dan dikirim kembali maka user akan menjadi anonim
+        - **Menambahkan izin akses internet di Android**
+            - Memberikan izin untuk app Android untuk menggunakan jaringan jaringan
+            - **Jika konfigurasi tidak dilakukan dengan benar**
+                - Aplikasi akan gagal mengakses koneksi jaringan sehingga dapat menyebabkan terjadinya error di flutter
 
-5. **Jelaskan mekanisme pengiriman data mulai dari input hingga dapat ditampilkan pada Flutter.**
+5. **Jelaskan mekanisme pengiriman data mulai dari input hingga dapat ditampilkan pada Flutter.** 
+    - **Melakukan input dan validasi di Flutter**
+        - User mengisi form 
+        - Setiap input pada field akan dicek menggunakan validator
+        - Jika berhasil maka lanjut mengirim data
+    - **Mengirimkan data ke Django**
+        - CookieRequest mengirimkan HTTP request (POST) ke endpoint Django dengan body JSON yang berisi data input 
+    - **Melakukan pemrosesan di Django** 
+        - Django akan memproses request dan membuat response kembali ke flutter
+    - **Menampilkan daftar produk** 
+        - Flutter akan melakukan pengecekan jika produk berhasil dibuat atau tidak, jika berhasil maka flutter akan menampilkan list datanya. 
 
 6. **Jelaskan mekanisme autentikasi dari login, register, hingga logout. Mulai dari input data akun pada Flutter ke Django hingga selesainya proses autentikasi oleh Django dan tampilnya menu pada Flutter.**
+    - **Login**
+        - User mengisi login page
+        - Flutter akan mengirim request ke Django
+        - Django akan melakukan cek kredensial
+        - Jika valid maka Django akan membuat session baru dan server mengirimkan cookies `sessionid`
+        - `CookieRequest` di flutter akan menyimpan `sessionid` (request berikutnya otomatis menyertakan cooki, sehingga server dapat mengenali user sebagai logged in (sudah login))
+        - Flutter akan melakukan mengarahkan user ke halaman utama.
+    - **Register**
+        - User mengisi registration page
+        - Flutter melakukan validasi lokal jika berhasil maka
+        - Flutter mengirimkan request JSON (POST) ke endpoint di Django
+        - Django akan melakukan validasi data
+        - Jika sukses maka flutter akan mengarahkan user ke halaman login.
+    - **Logout**
+        - User menekan logout button 
+        - Session user di server dihapus
+        - Flutter menghapus state login yang tersimpan di CookiesRequest
+        - Flutter akan mengarahkan user ke halaman login.
 
 7. **Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step! (bukan hanya sekadar mengikuti tutorial).**
+    - **Memastikan deployment proyek tugas Django kamu telah berjalan dengan baik.**
+        - Menjalankan local server Django dengan `python3 manage.py runserver`
+    - **Mengimplementasikan fitur registrasi akun pada proyek tugas Flutter.**
+        - Membuat dan mengisi file `register.dart` di direktori `screens`
+    - **Membuat halaman login pada proyek tugas Flutter.**
+        - Membuat dan mengisi file `login.dart` di direktori `screens`
+    - **Mengintegrasikan sistem autentikasi Django dengan proyek tugas Flutter.**
+        - Menambahkan endpoint login, register, dan logout pada `views.py` app `authentication` di Django
+        - Mengaktifkan session dan middleware di `settings.py` di Django
+    - **Membuat model kustom sesuai dengan proyek aplikasi Django.**
+        
+    - **Membuat halaman yang berisi daftar semua item yang terdapat pada endpoint JSON di Django yang telah kamu deploy.**
+    - **Tampilkan name, price, description, thumbnail, category, dan is_featured dari masing-masing item pada halaman ini (Dapat disesuaikan dengan field yang kalian buat sebelumnya).**
+    - **Membuat halaman detail untuk setiap item yang terdapat pada halaman daftar Item.**
+    - **Halaman ini dapat diakses dengan menekan salah satu card item pada halaman daftar Item.**
+    - **Tampilkan seluruh atribut pada model item kamu pada halaman ini.**
+    - **Tambahkan tombol untuk kembali ke halaman daftar item.**
+    - **Melakukan filter pada halaman daftar item dengan hanya menampilkan item yang terasosiasi dengan pengguna yang login.**
 
 # Footsal Mobile
 
